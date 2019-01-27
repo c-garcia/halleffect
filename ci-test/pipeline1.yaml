@@ -1,0 +1,34 @@
+resources:
+  - name: once-a-minute
+    type: time
+    source:
+      interval: 1m
+
+jobs:
+- name: show-time
+  public: true
+  plan:
+    - get: once-a-minute
+      trigger: true
+    - task: show-things
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: alpine
+            tag: 3.8
+        run:
+          path: sh
+          args:
+            - -ec
+            - |
+              if [ $RANDOM -gt 20000 ]; then
+                echo FAILED
+                exit 1
+              else
+                ls -l once-a-minute
+                cat once-a-minute/input
+              fi
+        inputs:
+          - name: once-a-minute

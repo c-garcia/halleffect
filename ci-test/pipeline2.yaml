@@ -1,0 +1,41 @@
+resources:
+  - name: micro-node-repo
+    type: git
+    source:
+      uri: https://github.com/c-garcia/micro-node.git
+  - name: micro-node
+    type: docker-image
+    source:
+      insecure_registries:
+        - registry:5000
+      repository: registry:5000/c-garcia/micro-node
+jobs:
+- name: build-node
+  plan:
+    - get: micro-node-repo
+    - put: micro-node
+      params:
+        build: micro-node-repo
+    - task: unit-tests
+      image: micro-node
+      config:
+        platform: linux
+        run:
+          path: sh
+          args:
+            - -ec
+            - node --version
+- name: integration-tests
+  plan:
+    - get: micro-node
+      trigger: true
+      passed: [build-node]
+    - task: run-tests
+      image: micro-node
+      config:
+        platform: linux
+        run:
+          path: sh
+          args:
+            - -ec
+            - node --version
