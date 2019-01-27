@@ -1,2 +1,6 @@
 .bin/
-mb.log
+mb*.log
+mb.pid
+_tools/
+vendor/
+node_modules/

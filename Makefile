@@ -31,3 +31,6 @@ trigger-p2: p2
 
 clean:
 	@rm -rf .bin
+
+gen:
+	retool do go generate ./...

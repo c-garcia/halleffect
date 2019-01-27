@@ -2,7 +2,7 @@ resources:
   - name: once-a-minute
     type: time
     source:
-      interval: 1m
+      interval: 5m
 
 jobs:
 - name: show-time
