@@ -4,3 +4,4 @@ mb.pid
 _tools/
 vendor/
 node_modules/
+out/
