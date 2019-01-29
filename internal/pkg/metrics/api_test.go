@@ -12,13 +12,27 @@ import (
 
 func TestAWSImpl_Publish(t *testing.T) {
 	metric := Metric{
-		Timestamp: 100,
-		EndTime:   120,
+		Timestamp:    100,
+		EndTime:      120,
+		PipelineName: "pipeline1",
+		JobName:      "job",
+		Status:       "finished",
+		Concourse:    "http://localhost:8080",
 	}
+	pipelineDimension := "pipeline"
+	jobNameDimension := "job_name"
+	jobStatusDimension := "status"
+	concourseDimension := "concourse"
 	datum := &cloudwatch.MetricDatum{}
 	datum.
-		SetTimestamp(time.Unix(int64(metric.Timestamp),0)).
+		SetTimestamp(time.Unix(int64(metric.Timestamp), 0)).
 		SetMetricName("Duration").
+		SetDimensions([]*cloudwatch.Dimension{
+			&cloudwatch.Dimension{Name: &pipelineDimension, Value: &metric.PipelineName},
+			&cloudwatch.Dimension{Name: &jobNameDimension, Value: &metric.JobName},
+			&cloudwatch.Dimension{Name: &jobStatusDimension, Value: &metric.Status},
+			&cloudwatch.Dimension{Name: &concourseDimension, Value: &metric.Concourse},
+		}).
 		SetUnit("seconds").
 		SetValue(float64(metric.Duration()))
 

@@ -30,9 +30,10 @@ func (s *ServiceImpl) ExportMetrics() error {
 	if builds, err = s.Concourse.FindLastBuilds(); err != nil {
 		return errors.Wrap(err, "Error retrieving builds")
 	}
+	concourseName := s.Concourse.Name()
 	for _, build := range builds {
 		if !build.Finished() {
-			if err := s.Exporter.Publish(metrics.FromConcourseBuild(build)); err != nil {
+			if err := s.Exporter.Publish(metrics.FromConcourseBuild(concourseName, build)); err != nil {
 				return errors.Wrap(err, "Error publishing metrics")
 			}
 		}

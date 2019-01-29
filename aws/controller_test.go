@@ -1,13 +1,13 @@
 package aws
 
 import (
-	"github.com/c-garcia/halleffect/internal/pkg/exporter/mocks"
+	"context"
 	handlerMocks "github.com/c-garcia/halleffect/aws/mocks"
+	"github.com/c-garcia/halleffect/internal/pkg/exporter/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"context"
 )
 
 func Test_NewLambdaHandler_CallsService(t *testing.T) {

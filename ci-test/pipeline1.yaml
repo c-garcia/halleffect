@@ -27,8 +27,8 @@ jobs:
                 echo FAILED
                 exit 1
               else
-                ls -l once-a-minute
-                cat once-a-minute/input
+                ls -l
+                #cat once-a-minute/input
               fi
         inputs:
           - name: once-a-minute

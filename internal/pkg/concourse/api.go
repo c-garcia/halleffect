@@ -9,11 +9,13 @@ import (
 //go:generate mockgen -source=api.go -destination=mocks/api.go -package=mocks
 
 type API interface {
+	Name() string
 	FindLastBuilds() ([]Build, error)
 }
 
 type ApiImpl struct {
-	URI string
+	Concourse string
+	URI       string
 }
 
 type BuildDTO struct {
@@ -71,6 +73,10 @@ func (s *ApiImpl) FindLastBuilds() ([]Build, error) {
 	return res, nil
 }
 
-func New(uri string) *ApiImpl {
-	return &ApiImpl{URI: uri}
+func (s *ApiImpl) Name() string {
+	return s.Concourse
+}
+
+func New(name string, uri string) *ApiImpl {
+	return &ApiImpl{Concourse: name, URI: uri}
 }

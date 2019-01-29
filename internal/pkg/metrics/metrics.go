@@ -5,18 +5,25 @@ import (
 )
 
 type Metric struct {
-	Timestamp int
-	EndTime int
+	Timestamp    int
+	EndTime      int
+	PipelineName string
+	JobName      string
+	Status       string
+	Concourse    string
 }
 
 func (m Metric) Duration() int {
 	return m.EndTime - m.Timestamp
 }
 
-func FromConcourseBuild(b concourse.Build) Metric{
+func FromConcourseBuild(name string, b concourse.Build) Metric {
 	return Metric{
-		Timestamp: b.StartTime,
-		EndTime: b.EndTime,
+		Concourse:    name,
+		PipelineName: b.PipelineName,
+		JobName:      b.JobName,
+		Status:       b.Status,
+		Timestamp:    b.StartTime,
+		EndTime:      b.EndTime,
 	}
 }
-

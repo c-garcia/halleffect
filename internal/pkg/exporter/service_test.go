@@ -11,14 +11,17 @@ import (
 	"testing"
 )
 
+const CONCOURSE_HOST = "concourse"
+
 func Test_ExportsMetrics_PublishesAllFinishedBuilds(t *testing.T) {
-	b1 := concourse.Build{StartTime: 100, EndTime: 120}
-	b2 := concourse.Build{StartTime: 121, EndTime: 200}
+	b1 := concourse.Build{StartTime: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
 	builds := []concourse.Build{b1, b2}
-	m1 := metrics.Metric{Timestamp: 100, EndTime: 120}
-	m2 := metrics.Metric{Timestamp: 121, EndTime: 200}
+	m1 := metrics.Metric{Concourse: CONCOURSE_HOST, Timestamp: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished"}
+	m2 := metrics.Metric{Concourse: CONCOURSE_HOST, Timestamp: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
 	ctrl := gomock.NewController(t)
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
+	mockConcourse.EXPECT().Name().Return(CONCOURSE_HOST)
 	mockConcourse.EXPECT().FindLastBuilds().Return(builds, nil)
 	mockExporter := metricsMocks.NewMockExporter(ctrl)
 	mockExporter.EXPECT().Publish(m1).Return(nil)
@@ -32,13 +35,14 @@ func Test_ExportsMetrics_PublishesAllFinishedBuilds(t *testing.T) {
 }
 
 func Test_ExportsMetrics_PublishesOnlyFinishedBuilds(t *testing.T) {
-	b1 := concourse.Build{StartTime: 100, EndTime: 0}
-	b2 := concourse.Build{StartTime: 121, EndTime: 200}
+	b1 := concourse.Build{StartTime: 100, EndTime: 0, PipelineName: "p1", JobName: "j1", Status: "started"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
 	builds := []concourse.Build{b1, b2}
-	m2 := metrics.Metric{Timestamp: 121, EndTime: 200}
+	m2 := metrics.Metric{Concourse: CONCOURSE_HOST, Timestamp: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
 	ctrl := gomock.NewController(t)
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
 	mockConcourse.EXPECT().FindLastBuilds().Return(builds, nil)
+	mockConcourse.EXPECT().Name().Return(CONCOURSE_HOST)
 	mockExporter := metricsMocks.NewMockExporter(ctrl)
 	mockExporter.EXPECT().Publish(m2).Return(nil)
 
@@ -50,8 +54,8 @@ func Test_ExportsMetrics_PublishesOnlyFinishedBuilds(t *testing.T) {
 }
 
 func Test_ExportsMetrics_PropagatesConcourseErrors(t *testing.T) {
-	b1 := concourse.Build{StartTime: 100, EndTime: 120}
-	b2 := concourse.Build{StartTime: 121, EndTime: 200}
+	b1 := concourse.Build{StartTime: 100, EndTime: 0, PipelineName: "p1", JobName: "j1", Status: "started"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
 	builds := []concourse.Build{b1, b2}
 	ctrl := gomock.NewController(t)
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
@@ -67,13 +71,14 @@ func Test_ExportsMetrics_PropagatesConcourseErrors(t *testing.T) {
 }
 
 func Test_ExportsMetrics_AbortsAtFirstPublishingError(t *testing.T) {
-	b1 := concourse.Build{StartTime: 100, EndTime: 120}
-	b2 := concourse.Build{StartTime: 121, EndTime: 200}
+	b1 := concourse.Build{StartTime: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
 	builds := []concourse.Build{b1, b2}
-	m1 := metrics.Metric{Timestamp: 100, EndTime: 120}
+	m1 := metrics.Metric{Concourse: CONCOURSE_HOST, Timestamp: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished"}
 	ctrl := gomock.NewController(t)
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
 	mockConcourse.EXPECT().FindLastBuilds().Return(builds, nil)
+	mockConcourse.EXPECT().Name().Return(CONCOURSE_HOST)
 	mockExporter := metricsMocks.NewMockExporter(ctrl)
 	mockExporter.EXPECT().Publish(m1).Return(assert.AnError)
 
