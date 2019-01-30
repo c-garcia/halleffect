@@ -1,4 +1,4 @@
-package exporter
+package poller
 
 //go:generate mockgen -source=service.go -destination=mocks/mock_doer.go -package=mocks
 

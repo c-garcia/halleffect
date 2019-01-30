@@ -3,7 +3,7 @@ package aws
 import (
 	"context"
 	handlerMocks "github.com/c-garcia/halleffect/aws/mocks"
-	"github.com/c-garcia/halleffect/internal/pkg/exporter/mocks"
+	"github.com/c-garcia/halleffect/internal/pkg/poller/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"

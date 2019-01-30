@@ -11,7 +11,7 @@ import (
 )
 
 func TestAWSImpl_Publish(t *testing.T) {
-	metric := Metric{
+	metric := JobDurationMetric{
 		Timestamp:    100,
 		EndTime:      120,
 		PipelineName: "pipeline1",
@@ -53,7 +53,7 @@ func TestAWSImpl_Publish(t *testing.T) {
 
 }
 func TestAWSImpl_Publish_PropagatesErrors(t *testing.T) {
-	metric := Metric{
+	metric := JobDurationMetric{
 		Timestamp: 100,
 		EndTime:   120,
 	}

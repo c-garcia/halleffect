@@ -9,7 +9,7 @@ import (
 )
 
 type Exporter interface {
-	Publish(m Metric) error
+	Publish(m JobDurationMetric) error
 }
 
 type AWSImpl struct {
@@ -25,7 +25,7 @@ func cloudwatchDimensions(d ...*cloudwatch.Dimension) []*cloudwatch.Dimension {
 	return d
 }
 
-func (s *AWSImpl) Publish(m Metric) error {
+func (s *AWSImpl) Publish(m JobDurationMetric) error {
 
 	datum := &cloudwatch.MetricDatum{}
 	datum.

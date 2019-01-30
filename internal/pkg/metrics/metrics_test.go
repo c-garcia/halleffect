@@ -13,11 +13,11 @@ func TestFromConcourseBuild(t *testing.T) {
 	tests := []struct {
 		name string
 		args concourse.Build
-		want Metric
+		want JobDurationMetric
 	}{
 		{"example 1",
 			concourse.Build{StartTime: 100, EndTime: 101, PipelineName: "p1", JobName: "j1", Status: "finished"},
-			Metric{Timestamp: 100, EndTime: 101, PipelineName: "p1", JobName: "j1", Status: "finished", Concourse: CONCOURSE_HOST},
+			JobDurationMetric{Timestamp: 100, EndTime: 101, PipelineName: "p1", JobName: "j1", Status: "finished", Concourse: CONCOURSE_HOST},
 		},
 	}
 	for _, tt := range tests {
@@ -43,12 +43,12 @@ func TestMetric_Duration(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := Metric{
+			m := JobDurationMetric{
 				Timestamp: tt.fields.Timestamp,
 				EndTime:   tt.fields.EndTime,
 			}
 			if got := m.Duration(); got != tt.want {
-				t.Errorf("Metric.Duration() = %v, want %v", got, tt.want)
+				t.Errorf("JobDurationMetric.Duration() = %v, want %v", got, tt.want)
 			}
 		})
 	}

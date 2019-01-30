@@ -34,7 +34,7 @@ func (m *MockExporter) EXPECT() *MockExporterMockRecorder {
 }
 
 // Publish mocks base method
-func (m_2 *MockExporter) Publish(m metrics.Metric) error {
+func (m_2 *MockExporter) Publish(m metrics.JobDurationMetric) error {
 	m_2.ctrl.T.Helper()
 	ret := m_2.ctrl.Call(m_2, "Publish", m)
 	ret0, _ := ret[0].(error)

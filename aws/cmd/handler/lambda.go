@@ -5,8 +5,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/c-garcia/halleffect/aws"
 	"github.com/c-garcia/halleffect/internal/pkg/concourse"
-	"github.com/c-garcia/halleffect/internal/pkg/exporter"
 	"github.com/c-garcia/halleffect/internal/pkg/metrics"
+	"github.com/c-garcia/halleffect/internal/pkg/poller"
 	"github.com/pkg/errors"
 	"log"
 	"os"
@@ -26,6 +26,6 @@ func main() {
 	concourseAPI := concourse.New(concourseName, concourseURL)
 	cloudwatchAPI := cloudwatch.New(session.Must(session.NewSession()))
 	metricsExporter := metrics.NewAWS("Concourse/Jobs", cloudwatchAPI)
-	handler = aws.NewLambdaHandler(exporter.New(concourseAPI, metricsExporter), log.New(os.Stderr, "concourse-metrics", log.LstdFlags))
+	handler = aws.NewLambdaHandler(poller.New(concourseAPI, metricsExporter), log.New(os.Stderr, "concourse-metrics", log.LstdFlags))
 	lambda.Start(handler)
 }
