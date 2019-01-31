@@ -1,4 +1,4 @@
-package handler
+package main
 
 import (
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -25,7 +25,8 @@ func main() {
 	}
 	concourseAPI := concourse.New(concourseName, concourseURL)
 	cloudwatchAPI := cloudwatch.New(session.Must(session.NewSession()))
-	metricsExporter := publisher.NewAWS("Concourse/Jobs", cloudwatchAPI)
-	handler = aws.NewLambdaHandler(poller.New(concourseAPI, metricsExporter), log.New(os.Stderr, "concourse-metrics", log.LstdFlags))
+	const Namespace = "Concourse/Jobs"
+	metricsExporter := publisher.NewAWS(Namespace, cloudwatchAPI)
+	handler = aws.NewLambdaHandler(poller.New(concourseAPI, metricsExporter), log.New(os.Stderr, "hall-effect", log.LstdFlags))
 	lambda.Start(handler)
 }
