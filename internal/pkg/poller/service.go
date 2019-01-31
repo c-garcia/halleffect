@@ -4,7 +4,7 @@ package poller
 
 import (
 	"github.com/c-garcia/halleffect/internal/pkg/concourse"
-	"github.com/c-garcia/halleffect/internal/pkg/metrics"
+	"github.com/c-garcia/halleffect/internal/pkg/publisher"
 	"github.com/pkg/errors"
 )
 
@@ -14,10 +14,10 @@ type Service interface {
 
 type ServiceImpl struct {
 	Concourse concourse.API
-	Exporter  metrics.Exporter
+	Exporter  publisher.MetricsPublisher
 }
 
-func New(concourse concourse.API, exporter metrics.Exporter) *ServiceImpl {
+func New(concourse concourse.API, exporter publisher.MetricsPublisher) *ServiceImpl {
 	return &ServiceImpl{
 		Concourse: concourse,
 		Exporter:  exporter,
@@ -33,7 +33,7 @@ func (s *ServiceImpl) ExportMetrics() error {
 	concourseName := s.Concourse.Name()
 	for _, build := range builds {
 		if !build.Finished() {
-			if err := s.Exporter.Publish(metrics.FromConcourseBuild(concourseName, build)); err != nil {
+			if err := s.Exporter.PublishJobDuration(publisher.FromConcourseBuild(concourseName, build)); err != nil {
 				return errors.Wrap(err, "Error publishing metrics")
 			}
 		}

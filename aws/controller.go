@@ -7,7 +7,7 @@ import (
 )
 
 func NewLambdaHandler(exporter poller.Service, logger Logger) MetricsHandler {
-	return func(ctx context.Context, event ExportMetricsLambdaEvent) (s string, e error) {
+	return func(ctx context.Context, event PublishConcourseMetricsLambdaEvent) (s string, e error) {
 		if err := exporter.ExportMetrics(); err != nil {
 			newErr := errors.Wrap(err, "Service error")
 			logger.Printf("%+v", newErr)

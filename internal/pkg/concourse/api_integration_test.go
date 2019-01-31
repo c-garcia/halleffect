@@ -77,7 +77,7 @@ func TestAPI_FindLastBuilds_RetrievesLastBuilds(t *testing.T) {
 ]
 `
 	givenACouncourseServer(PORT, buildsJSON)
-	sut := concourse.New(fmt.Sprintf("http://%s:%d/", getMBHost(), PORT))
+	sut := concourse.New("test", fmt.Sprintf("http://%s:%d/", getMBHost(), PORT))
 	builds, err := sut.FindLastBuilds()
 
 	assert.NoError(t, err)
@@ -112,7 +112,7 @@ func TestAPI_FindLastBuilds_PropagatesServerErrors(t *testing.T) {
 	defer shutdownServer()
 
 	givenAFailingCouncourseServer(PORT)
-	sut := concourse.New(fmt.Sprintf("http://%s:%d/", getMBHost(), PORT))
+	sut := concourse.New("test", fmt.Sprintf("http://%s:%d/", getMBHost(), PORT))
 	_, err := sut.FindLastBuilds()
 
 	assert.Error(t, err)
@@ -126,7 +126,7 @@ func TestAPI_FindLastBuilds_PropagatesConnectionErrors(t *testing.T) {
 	defer shutdownServer()
 
 	givenNoConcourseServer()
-	sut := concourse.New(fmt.Sprintf("http://%s:%d/", getMBHost(), PORT))
+	sut := concourse.New("test", fmt.Sprintf("http://%s:%d/", getMBHost(), PORT))
 	_, err := sut.FindLastBuilds()
 
 	assert.Error(t, err)

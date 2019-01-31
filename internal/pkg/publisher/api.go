@@ -1,4 +1,4 @@
-package metrics
+package publisher
 
 //go:generate mockgen -source=api.go -destination=mocks/api.go -package=mocks
 
@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-type Exporter interface {
-	Publish(m JobDurationMetric) error
+type MetricsPublisher interface {
+	PublishJobDuration(m JobDurationMetric) error
 }
 
 type AWSImpl struct {
@@ -25,7 +25,7 @@ func cloudwatchDimensions(d ...*cloudwatch.Dimension) []*cloudwatch.Dimension {
 	return d
 }
 
-func (s *AWSImpl) Publish(m JobDurationMetric) error {
+func (s *AWSImpl) PublishJobDuration(m JobDurationMetric) error {
 
 	datum := &cloudwatch.MetricDatum{}
 	datum.

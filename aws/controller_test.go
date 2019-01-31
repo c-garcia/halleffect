@@ -19,7 +19,7 @@ func Test_NewLambdaHandler_CallsService(t *testing.T) {
 
 	sut := NewLambdaHandler(mockService, mockLogger)
 
-	res, err := sut(context.Background(), ExportMetricsLambdaEvent{})
+	res, err := sut(context.Background(), PublishConcourseMetricsLambdaEvent{})
 
 	assert.Zero(t, "", res)
 	assert.NoError(t, err)
@@ -35,7 +35,7 @@ func Test_NewLambdaHandler_PropagatesError(t *testing.T) {
 
 	sut := NewLambdaHandler(mockService, mockLogger)
 
-	_, err := sut(context.Background(), ExportMetricsLambdaEvent{})
+	_, err := sut(context.Background(), PublishConcourseMetricsLambdaEvent{})
 
 	assert.Error(t, err)
 	assert.Equal(t, errors.Cause(err), assert.AnError)

@@ -1,4 +1,4 @@
-package metrics
+package publisher
 
 import (
 	"github.com/c-garcia/halleffect/internal/pkg/concourse"

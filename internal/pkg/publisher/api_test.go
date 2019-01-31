@@ -1,4 +1,4 @@
-package metrics
+package publisher
 
 import (
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
@@ -45,7 +45,7 @@ func TestAWSImpl_Publish(t *testing.T) {
 	mockWriter.EXPECT().PutMetricData(dataInput).Return(&cloudwatch.PutMetricDataOutput{}, nil)
 
 	sut := NewAWS("Concourse/Jobs", mockWriter)
-	err := sut.Publish(metric)
+	err := sut.PublishJobDuration(metric)
 
 	assert.NoError(t, err)
 
@@ -62,7 +62,7 @@ func TestAWSImpl_Publish_PropagatesErrors(t *testing.T) {
 	mockWriter.EXPECT().PutMetricData(gomock.Any()).Return(&cloudwatch.PutMetricDataOutput{}, assert.AnError)
 
 	sut := NewAWS("Concourse/Jobs", mockWriter)
-	err := sut.Publish(metric)
+	err := sut.PublishJobDuration(metric)
 
 	assert.Error(t, err)
 	assert.Equal(t, assert.AnError, errors.Cause(err))

@@ -2,8 +2,6 @@ package aws
 
 import "context"
 
-type ExportMetricsLambdaEvent struct{}
+type PublishConcourseMetricsLambdaEvent struct{}
 
-type MetricsHandler func (ctx context.Context, event ExportMetricsLambdaEvent) (string, error)
-
-
+type MetricsHandler func(ctx context.Context, event PublishConcourseMetricsLambdaEvent) (string, error)
