@@ -99,6 +99,21 @@ func GivenAConcourseServer(name string, port int) []publisher.JobDurationMetric 
 	}
 }
 
+func GivenAFailingCouncourseServer(name string, port int) {
+	mbClient := gobank.NewClient(MounteBankURL())
+	imposter := gobank.NewImposterBuilder().Port(port).Protocol("http").
+		Stubs(
+			gobank.Stub().Responses(
+				responses.Is().StatusCode(http.StatusInternalServerError).
+					Header("Content-type", "application/json").
+					Body("").Build()).Build(),
+		).Build()
+	_, err := mbClient.CreateImposter(imposter)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func ShutdownConcourseServer(port int) {
 	mbClient := gobank.NewClient(MounteBankURL())
 	if _, err := mbClient.DeleteImposter(port); err != nil {
