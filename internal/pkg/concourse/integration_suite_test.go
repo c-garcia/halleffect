@@ -19,7 +19,7 @@ func getMBHost() string {
 }
 
 func getMBPort() int {
-	if "" == os.Getenv("MB_POST") {
+	if "" == os.Getenv("MB_PORT") {
 		return 2525
 	}
 	i, err := strconv.Atoi(os.Getenv("MB_PORT"))

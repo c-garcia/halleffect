@@ -11,6 +11,7 @@ type JobDurationMetric struct {
 	JobName      string
 	Status       string
 	Concourse    string
+	TeamName     string
 }
 
 func (m JobDurationMetric) Duration() int {
@@ -25,5 +26,6 @@ func FromConcourseBuild(name string, b concourse.Build) JobDurationMetric {
 		Status:       b.Status,
 		Timestamp:    b.StartTime,
 		EndTime:      b.EndTime,
+		TeamName:     b.TeamName,
 	}
 }

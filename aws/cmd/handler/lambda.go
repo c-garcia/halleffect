@@ -26,7 +26,7 @@ func main() {
 	concourseAPI := concourse.New(concourseName, concourseURL)
 	cloudwatchAPI := cloudwatch.New(session.Must(session.NewSession()))
 	const Namespace = "Concourse/Jobs"
-	metricsExporter := publisher.NewAWS(Namespace, cloudwatchAPI)
-	handler = aws.NewLambdaHandler(poller.New(concourseAPI, metricsExporter), log.New(os.Stderr, "hall-effect", log.LstdFlags))
+	metricsPublisher := publisher.NewAWS(Namespace, cloudwatchAPI)
+	handler = aws.NewLambdaHandler(poller.New(concourseAPI, metricsPublisher), log.New(os.Stderr, "hall-effect", log.LstdFlags))
 	lambda.Start(handler)
 }

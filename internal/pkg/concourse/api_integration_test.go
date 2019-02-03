@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"github.com/c-garcia/halleffect/internal/pkg/concourse"
 	"github.com/durmaze/gobank"
+	"github.com/durmaze/gobank/predicates"
 	"github.com/durmaze/gobank/responses"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+	"net/http"
 	"testing"
 )
 
@@ -22,7 +24,11 @@ var (
 
 func givenACouncourseServer(port int, jsonText string) {
 	imposter = gobank.NewImposterBuilder().Protocol("http").Port(port).Stubs(
-		gobank.Stub().Responses(
+		gobank.Stub().
+			Predicates(
+				predicates.Equals().Method(http.MethodGet).Build(),
+				predicates.Equals().Path("/api/v1/builds").Build(),
+			).Responses(
 			responses.Is().
 				StatusCode(200).
 				Header("Content-type", "application/json").
@@ -83,13 +89,13 @@ func TestAPI_FindLastBuilds_RetrievesLastBuilds(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, builds, 3)
 	assert.Equal(t, builds[0], concourse.Build{
-		Id: 160, StartTime: 1548573140, EndTime: 0, PipelineName: "p2", JobName: "build-node", Status: "started",
+		Id: 160, StartTime: 1548573140, EndTime: 0, PipelineName: "p2", JobName: "build-node", Status: "started", TeamName: "main",
 	})
 	assert.Equal(t, builds[1], concourse.Build{
-		Id: 159, StartTime: 1548573115, EndTime: 1548573122, PipelineName: "p1", JobName: "show-time", Status: "succeeded",
+		Id: 159, StartTime: 1548573115, EndTime: 1548573122, PipelineName: "p1", JobName: "show-time", Status: "succeeded", TeamName: "main",
 	})
 	assert.Equal(t, builds[2], concourse.Build{
-		Id: 158, StartTime: 1548573055, EndTime: 1548573063, PipelineName: "p1", JobName: "show-time", Status: "failed",
+		Id: 158, StartTime: 1548573055, EndTime: 1548573063, PipelineName: "p1", JobName: "show-time", Status: "failed", TeamName: "main",
 	})
 }
 

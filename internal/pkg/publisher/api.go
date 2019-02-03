@@ -31,12 +31,13 @@ func (s *AWSImpl) PublishJobDuration(m JobDurationMetric) error {
 	datum.
 		SetTimestamp(time.Unix(int64(m.Timestamp), 0)).
 		SetMetricName("Duration").
-		SetUnit("seconds").
+		SetUnit("Seconds").
 		SetDimensions(cloudwatchDimensions(
 			cloudwatchDimension("pipeline", m.PipelineName),
 			cloudwatchDimension("job_name", m.JobName),
 			cloudwatchDimension("status", m.Status),
 			cloudwatchDimension("concourse", m.Concourse),
+			cloudwatchDimension("team", m.TeamName),
 		)).
 		SetValue(float64(m.Duration()))
 	data := []*cloudwatch.MetricDatum{datum}

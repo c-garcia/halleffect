@@ -14,11 +14,17 @@ import (
 const CONCOURSE_HOST = "concourse"
 
 func Test_ExportsMetrics_PublishesAllFinishedBuilds(t *testing.T) {
-	b1 := concourse.Build{StartTime: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished"}
-	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
+	b1 := concourse.Build{StartTime: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished", TeamName: "main"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed", TeamName: "not-main"}
 	builds := []concourse.Build{b1, b2}
-	m1 := publisher.JobDurationMetric{Concourse: CONCOURSE_HOST, Timestamp: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished"}
-	m2 := publisher.JobDurationMetric{Concourse: CONCOURSE_HOST, Timestamp: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
+	m1 := publisher.JobDurationMetric{
+		Concourse: CONCOURSE_HOST, Timestamp: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished",
+		TeamName: "main",
+	}
+	m2 := publisher.JobDurationMetric{
+		Concourse: CONCOURSE_HOST, Timestamp: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed",
+		TeamName: "not-main",
+	}
 	ctrl := gomock.NewController(t)
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
 	mockConcourse.EXPECT().Name().Return(CONCOURSE_HOST)
@@ -35,10 +41,13 @@ func Test_ExportsMetrics_PublishesAllFinishedBuilds(t *testing.T) {
 }
 
 func Test_ExportsMetrics_PublishesOnlyFinishedBuilds(t *testing.T) {
-	b1 := concourse.Build{StartTime: 100, EndTime: 0, PipelineName: "p1", JobName: "j1", Status: "started"}
-	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
+	b1 := concourse.Build{StartTime: 100, EndTime: 0, PipelineName: "p1", JobName: "j1", Status: "started", TeamName: "main"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed", TeamName: "not-main"}
 	builds := []concourse.Build{b1, b2}
-	m2 := publisher.JobDurationMetric{Concourse: CONCOURSE_HOST, Timestamp: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
+	m2 := publisher.JobDurationMetric{
+		Concourse: CONCOURSE_HOST, Timestamp: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed",
+		TeamName: "not-main",
+	}
 	ctrl := gomock.NewController(t)
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
 	mockConcourse.EXPECT().FindLastBuilds().Return(builds, nil)
@@ -54,8 +63,8 @@ func Test_ExportsMetrics_PublishesOnlyFinishedBuilds(t *testing.T) {
 }
 
 func Test_ExportsMetrics_PropagatesConcourseErrors(t *testing.T) {
-	b1 := concourse.Build{StartTime: 100, EndTime: 0, PipelineName: "p1", JobName: "j1", Status: "started"}
-	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
+	b1 := concourse.Build{StartTime: 100, EndTime: 0, PipelineName: "p1", JobName: "j1", Status: "started", TeamName: "main"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed", TeamName: "not-main"}
 	builds := []concourse.Build{b1, b2}
 	ctrl := gomock.NewController(t)
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
@@ -71,10 +80,13 @@ func Test_ExportsMetrics_PropagatesConcourseErrors(t *testing.T) {
 }
 
 func Test_ExportsMetrics_AbortsAtFirstPublishingError(t *testing.T) {
-	b1 := concourse.Build{StartTime: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished"}
-	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed"}
+	b1 := concourse.Build{StartTime: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished", TeamName: "main"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed", TeamName: "not-main"}
 	builds := []concourse.Build{b1, b2}
-	m1 := publisher.JobDurationMetric{Concourse: CONCOURSE_HOST, Timestamp: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished"}
+	m1 := publisher.JobDurationMetric{
+		Concourse: CONCOURSE_HOST, Timestamp: 100, EndTime: 120, PipelineName: "p1", JobName: "j1", Status: "finished",
+		TeamName: "main",
+	}
 	ctrl := gomock.NewController(t)
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
 	mockConcourse.EXPECT().FindLastBuilds().Return(builds, nil)

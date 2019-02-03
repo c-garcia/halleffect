@@ -1,20 +1,20 @@
 resources:
-  - name: once-a-minute
+  - name: once-every-5m
     type: time
     source:
       interval: 5m
 
 jobs:
-- name: show-time
+- name: more-show-time
   public: true
   plan:
-    - get: once-a-minute
+    - get: once-every-5m
       trigger: true
     - task: show-more-things
       config:
         platform: linux
         inputs:
-          - name: once-a-minute
+          - name: once-every-5m
         image_resource:
           type: docker-image
           source:

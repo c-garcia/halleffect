@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	metrics "github.com/c-garcia/halleffect/internal/pkg/publisher"
+	publisher "github.com/c-garcia/halleffect/internal/pkg/publisher"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -34,7 +34,7 @@ func (m *MockMetricsPublisher) EXPECT() *MockMetricsPublisherMockRecorder {
 }
 
 // PublishJobDuration mocks base method
-func (m_2 *MockMetricsPublisher) PublishJobDuration(m metrics.JobDurationMetric) error {
+func (m_2 *MockMetricsPublisher) PublishJobDuration(m publisher.JobDurationMetric) error {
 	m_2.ctrl.T.Helper()
 	ret := m_2.ctrl.Call(m_2, "PublishJobDuration", m)
 	ret0, _ := ret[0].(error)

@@ -1,6 +1,6 @@
 package poller
 
-//go:generate mockgen -source=service.go -destination=mocks/mock_doer.go -package=mocks
+//go:generate mockgen -source=poller.go -destination=mocks/mock_doer.go -package=mocks
 
 import (
 	"github.com/c-garcia/halleffect/internal/pkg/concourse"

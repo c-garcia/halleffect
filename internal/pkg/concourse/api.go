@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net/http"
+	"net/url"
 )
 
 //go:generate mockgen -source=api.go -destination=mocks/api.go -package=mocks
@@ -15,7 +16,7 @@ type API interface {
 
 type ApiImpl struct {
 	Concourse string
-	URI       string
+	URI       *url.URL
 }
 
 type BuildDTO struct {
@@ -38,13 +39,15 @@ func dtoToBuild(b BuildDTO) Build {
 		PipelineName: b.PipelineName,
 		JobName:      b.JobName,
 		Status:       b.Status,
+		TeamName:     b.TeamName,
 	}
 }
 
 func (s *ApiImpl) FindLastBuilds() ([]Build, error) {
 
 	client := http.Client{}
-	req, err := http.NewRequest(http.MethodPost, s.URI, nil)
+	buildsEndpoint, _ := s.URI.Parse("/api/v1/builds")
+	req, err := http.NewRequest(http.MethodGet, buildsEndpoint.String(), nil)
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-type", "application/json")
 	if err != nil {
@@ -78,5 +81,22 @@ func (s *ApiImpl) Name() string {
 }
 
 func New(name string, uri string) *ApiImpl {
-	return &ApiImpl{Concourse: name, URI: uri}
+	validProtos := map[string]bool{
+		"http":  true,
+		"https": true,
+	}
+	var err error
+	var concourseURL *url.URL
+	if concourseURL, err = url.Parse(uri); err != nil {
+		panic(err)
+	}
+
+	if !validProtos[concourseURL.Scheme] {
+		panic(errors.New("Invalid Concourse URI"))
+	}
+
+	if concourseURL.Host == "" {
+		panic(errors.New("Invalid Concourse URI"))
+	}
+	return &ApiImpl{Concourse: name, URI: concourseURL}
 }

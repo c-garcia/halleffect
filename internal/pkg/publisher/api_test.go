@@ -23,6 +23,7 @@ func TestAWSImpl_Publish(t *testing.T) {
 	jobNameDimension := "job_name"
 	jobStatusDimension := "status"
 	concourseDimension := "concourse"
+	teamDimension := "team"
 	datum := &cloudwatch.MetricDatum{}
 	datum.
 		SetTimestamp(time.Unix(int64(metric.Timestamp), 0)).
@@ -32,8 +33,9 @@ func TestAWSImpl_Publish(t *testing.T) {
 			&cloudwatch.Dimension{Name: &jobNameDimension, Value: &metric.JobName},
 			&cloudwatch.Dimension{Name: &jobStatusDimension, Value: &metric.Status},
 			&cloudwatch.Dimension{Name: &concourseDimension, Value: &metric.Concourse},
+			&cloudwatch.Dimension{Name: &teamDimension, Value: &metric.TeamName},
 		}).
-		SetUnit("seconds").
+		SetUnit("Seconds").
 		SetValue(float64(metric.Duration()))
 
 	dataInput := &cloudwatch.PutMetricDataInput{}

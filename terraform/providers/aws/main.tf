@@ -18,6 +18,8 @@ resource "aws_iam_role" "iam_for_lambda" {
 EOF
 }
 
+variable "concourse_url" {}
+
 resource "aws_lambda_function" "test_lambda" {
   filename         = "../../../out/lambda.zip"
   function_name    = "concourse-metrics"
@@ -29,7 +31,7 @@ resource "aws_lambda_function" "test_lambda" {
   environment {
     variables = {
       CONCOURSE_NAME = "test"
-      CONCOURSE_URL = "http://38dad6c5.ngrok.io/"
+      CONCOURSE_URL = "${var.concourse_url}"
     }
   }
 }

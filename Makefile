@@ -35,6 +35,11 @@ concourse/p2: $(FLYBIN)
 concourse/trigger-p2: concourse/p2
 	@$(FLY) trigger-job --job p2/build-node
 
+concourse/p3: $(FLYBIN)
+	@$(FLY) validate-pipeline -c ci-test/pipeline3.yaml
+	@$(FLY) set-pipeline --config ci-test/pipeline3.yaml --pipeline p3 -n
+	@$(FLY) expose-pipeline --pipeline p3
+
 clean:
 	@rm -rf .bin
 	@rm -rf out
@@ -66,6 +71,17 @@ infra/up:
 infra/down:
 	@docker-compose down
 
+infra/publish:
+	@ngrok http --bind-tls=true 8080
+
+aws/check:
+	@cd terraform/providers/aws; terraform validate
+	@cd terraform/providers/aws; terraform plan
+
+aws/update:
+	@cd terraform/providers/aws; terraform validate
+	@cd terraform/providers/aws; terraform apply -auto-approve
+
 out/lambda: out aws/cmd/handler/lambda.go
 	@GOOS=linux go build -o out/lambda ./aws/cmd/handler/
 
@@ -73,3 +89,5 @@ out/lambda.zip: out/lambda
 	cd out/; zip lambda.zip lambda
 
 target: out/lambda.zip
+
+
