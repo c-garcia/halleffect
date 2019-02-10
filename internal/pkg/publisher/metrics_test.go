@@ -1,6 +1,7 @@
 package publisher
 
 import (
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 
@@ -50,6 +51,70 @@ func TestMetric_Duration(t *testing.T) {
 			if got := m.Duration(); got != tt.want {
 				t.Errorf("JobDurationMetric.Duration() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+func TestFromConcourseJobStatus(t *testing.T) {
+	const Concourse = "test-concourse"
+	const SamplingTime = 10000
+	testCases := []struct {
+		Desc   string
+		Status concourse.JobStatus
+		Metric JobStatusMetric
+	}{
+		{
+			Desc:   "Succeeded Job",
+			Status: concourse.JobStatus{Id: 1, TeamName: "main", JobName: "j1", PipelineName: "p1", Status: "succeeded"},
+			Metric: JobStatusMetric{Concourse: Concourse, TeamName: "main", PipelineName: "p1", JobName: "j1", Status: "up", SamplingTime: SamplingTime},
+		},
+		{
+			Desc:   "Failed job",
+			Status: concourse.JobStatus{Id: 1, TeamName: "main", JobName: "j1", PipelineName: "p1", Status: "failed"},
+			Metric: JobStatusMetric{Concourse: Concourse, TeamName: "main", PipelineName: "p1", JobName: "j1", Status: "down", SamplingTime: SamplingTime},
+		},
+		{
+			Desc:   "Errored job",
+			Status: concourse.JobStatus{Id: 1, TeamName: "main", JobName: "j1", PipelineName: "p1", Status: "errored"},
+			Metric: JobStatusMetric{Concourse: Concourse, TeamName: "main", PipelineName: "p1", JobName: "j1", Status: "down", SamplingTime: SamplingTime},
+		},
+		{
+			Desc:   "Aborted job",
+			Status: concourse.JobStatus{Id: 1, TeamName: "main", JobName: "j1", PipelineName: "p1", Status: "aborted"},
+			Metric: JobStatusMetric{Concourse: Concourse, TeamName: "main", PipelineName: "p1", JobName: "j1", Status: "down", SamplingTime: SamplingTime},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Desc, func(t *testing.T) {
+			assert.Equal(t, testCase.Metric, FromConcourseJobStatus(Concourse, SamplingTime, testCase.Status))
+		})
+	}
+}
+
+func TestFromConcourseJobStatus_PanicsForPendingAndUnknownStatuses(t *testing.T) {
+	const Concourse = "test-concourse"
+	const SamplingTime = 200000
+	testCases := []struct {
+		Desc   string
+		Status concourse.JobStatus
+	}{
+		{
+			Desc:   "Succeeded Job",
+			Status: concourse.JobStatus{Id: 1, TeamName: "main", JobName: "j1", PipelineName: "p1", Status: "pending"},
+		},
+		{
+			Desc:   "Failed job",
+			Status: concourse.JobStatus{Id: 1, TeamName: "main", JobName: "j1", PipelineName: "p1", Status: "unknown"},
+		},
+		{
+			Desc:   "Errored job",
+			Status: concourse.JobStatus{Id: 1, TeamName: "main", JobName: "j1", PipelineName: "p1", Status: "ssewqe"},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Desc, func(t *testing.T) {
+			assert.Panics(t, func() { FromConcourseJobStatus(Concourse, SamplingTime, testCase.Status) })
 		})
 	}
 }

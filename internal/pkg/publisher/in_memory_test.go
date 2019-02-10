@@ -1,9 +1,10 @@
 package publisher
 
 import (
+	"testing"
+
 	"github.com/bxcodec/faker"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestInMemory_Publish(t *testing.T) {
@@ -37,4 +38,30 @@ func TestInMemoryImpl_NumberOfPublishedJobDurationMetrics(t *testing.T) {
 	err = sut.PublishJobDuration(m1)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, sut.NumberOfPublishedJobDurationMetrics())
+}
+
+func TestInMemoryImpl_PublishJobStatus(t *testing.T) {
+	status := JobStatusMetric{
+		Concourse:    "concourse",
+		TeamName:     "main",
+		PipelineName: "p12",
+		JobName:      "j32",
+		Status:       "up",
+		SamplingTime: 1050,
+	}
+	statusUnPublished := JobStatusMetric{
+		Concourse:    "concourse",
+		TeamName:     "main",
+		PipelineName: "p13",
+		JobName:      "j33",
+		Status:       "down",
+		SamplingTime: 1090,
+	}
+	sut := NewInMemory()
+	err := sut.PublishJobStatus(status)
+	assert.NoError(t, err)
+	assert.True(t, sut.JobStatusHasBeenPublished(status))
+	assert.False(t, sut.JobStatusHasBeenPublished(statusUnPublished))
+	assert.Equal(t, 1, sut.NumberOfPublishedJobStatusMetrics())
+	assert.Equal(t, 0, sut.NumberOfPublishedJobDurationMetrics())
 }

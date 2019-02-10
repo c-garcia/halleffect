@@ -5,6 +5,7 @@ package concourse_test
 import (
 	"fmt"
 	"github.com/c-garcia/halleffect/internal/pkg/concourse"
+	"github.com/c-garcia/halleffect/internal/pkg/doubles"
 	"github.com/durmaze/gobank"
 	"github.com/durmaze/gobank/predicates"
 	"github.com/durmaze/gobank/responses"
@@ -136,4 +137,85 @@ func TestAPI_FindLastBuilds_PropagatesConnectionErrors(t *testing.T) {
 	_, err := sut.FindLastBuilds()
 
 	assert.Error(t, err)
+}
+
+func TestApi_FindJobStatuses(t *testing.T) {
+	numberOfJobsWithFinishedBuilds := func(jobs []concourse.JobDTO) int {
+		res := 0
+		for _, job := range jobs {
+			if job.FinishedBuild != nil {
+				res++
+			}
+		}
+		return res
+	}
+	successFulJobJSON := concourse.JobDTO{
+		Id:           1,
+		Name:         "job-1",
+		PipelineName: "p1",
+		TeamName:     "main",
+		FinishedBuild: &concourse.BuildDTO{
+			Id:           99,
+			TeamName:     "main",
+			Name:         "99",
+			Status:       "succeeded",
+			JobName:      "job-1",
+			APIURL:       "/api/v1/jobs/99",
+			PipelineName: "p1",
+			StartTime:    1000,
+			EndTime:      1100,
+		},
+	}
+
+	successFulJob := concourse.JobStatus{
+		Id:           1,
+		TeamName:     "main",
+		JobName:      "job-1",
+		PipelineName: "p1",
+		Status:       "succeeded",
+	}
+
+	failedJobJSON := concourse.JobDTO{
+		Id:           2,
+		Name:         "job-2",
+		PipelineName: "p2",
+		TeamName:     "main",
+		FinishedBuild: &concourse.BuildDTO{
+			Id:           98,
+			TeamName:     "main",
+			Name:         "98",
+			Status:       "failed",
+			JobName:      "job-2",
+			APIURL:       "/api/v1/jobs/98",
+			PipelineName: "p2",
+			StartTime:    1101,
+			EndTime:      1200,
+		},
+	}
+
+	failedJob := concourse.JobStatus{
+		Id:           2,
+		TeamName:     "main",
+		JobName:      "job-2",
+		PipelineName: "p2",
+		Status:       "failed",
+	}
+
+	neverRunJob := concourse.JobDTO{
+		Id:            3,
+		Name:          "job-3",
+		PipelineName:  "p2",
+		TeamName:      "main",
+		FinishedBuild: nil,
+	}
+
+	jobsJSON := []concourse.JobDTO{successFulJobJSON, failedJobJSON, neverRunJob}
+	doubles.GivenACouncourseServerWithJobs(PORT, jobsJSON)
+	defer doubles.ShutdownConcourseServer(PORT)
+	sut := concourse.New("test", doubles.ImposterURL(PORT))
+	metrics, err := sut.FindJobStatuses()
+	assert.NoError(t, err, "There should be no error")
+	assert.Contains(t, metrics, successFulJob, "The successful job belongs to the returned ones")
+	assert.Contains(t, metrics, failedJob, "The failed job belongs to the returned ones")
+	assert.Len(t, metrics, numberOfJobsWithFinishedBuilds(jobsJSON), "There should be only jobs with finished builds")
 }

@@ -46,3 +46,17 @@ func (mr *MockMetricsPublisherMockRecorder) PublishJobDuration(m interface{}) *g
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PublishJobDuration", reflect.TypeOf((*MockMetricsPublisher)(nil).PublishJobDuration), m)
 }
+
+// PublishJobStatus mocks base method
+func (m_2 *MockMetricsPublisher) PublishJobStatus(m publisher.JobStatusMetric) error {
+	m_2.ctrl.T.Helper()
+	ret := m_2.ctrl.Call(m_2, "PublishJobStatus", m)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PublishJobStatus indicates an expected call of PublishJobStatus
+func (mr *MockMetricsPublisherMockRecorder) PublishJobStatus(m interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PublishJobStatus", reflect.TypeOf((*MockMetricsPublisher)(nil).PublishJobStatus), m)
+}

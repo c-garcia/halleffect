@@ -10,11 +10,16 @@ import (
 
 type MetricsPublisher interface {
 	PublishJobDuration(m JobDurationMetric) error
+	PublishJobStatus(m JobStatusMetric) error
 }
 
 type AWSImpl struct {
 	Namespace string
 	Writer    writers.AWSCloudWatchMetricWriter
+}
+
+func (s *AWSImpl) PublishJobStatus(m JobStatusMetric) error {
+	panic("implement me")
 }
 
 func cloudwatchDimension(n string, v string) *cloudwatch.Dimension {

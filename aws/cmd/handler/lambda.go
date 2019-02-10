@@ -7,6 +7,7 @@ import (
 	"github.com/c-garcia/halleffect/internal/pkg/concourse"
 	"github.com/c-garcia/halleffect/internal/pkg/poller"
 	"github.com/c-garcia/halleffect/internal/pkg/publisher"
+	"github.com/c-garcia/halleffect/internal/pkg/timing"
 	"github.com/pkg/errors"
 	"log"
 	"os"
@@ -27,6 +28,6 @@ func main() {
 	cloudwatchAPI := cloudwatch.New(session.Must(session.NewSession()))
 	const Namespace = "Concourse/Jobs"
 	metricsPublisher := publisher.NewAWS(Namespace, cloudwatchAPI)
-	handler = aws.NewLambdaHandler(poller.New(concourseAPI, metricsPublisher), log.New(os.Stderr, "hall-effect", log.LstdFlags))
+	handler = aws.NewLambdaHandler(poller.New(concourseAPI, metricsPublisher, timing.NewSystemClock()), log.New(os.Stderr, "hall-effect", log.LstdFlags))
 	lambda.Start(handler)
 }

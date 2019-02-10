@@ -12,6 +12,7 @@ import (
 type API interface {
 	Name() string
 	FindLastBuilds() ([]Build, error)
+	FindJobStatuses() ([]JobStatus, error)
 }
 
 type ApiImpl struct {
@@ -72,6 +73,58 @@ func (s *ApiImpl) FindLastBuilds() ([]Build, error) {
 	res := make([]Build, len(jsonBuilds))
 	for i, item := range jsonBuilds {
 		res[i] = dtoToBuild(item)
+	}
+	return res, nil
+}
+
+type JobDTO struct {
+	Id            int       `json:"id"`
+	Name          string    `json:"name"`
+	PipelineName  string    `json:"pipeline_name"`
+	TeamName      string    `json:"team_name"`
+	FinishedBuild *BuildDTO `json:"finished_build"`
+}
+
+func dtoToJobStatus(dto JobDTO) JobStatus {
+	return JobStatus{
+		Id:           dto.Id,
+		TeamName:     dto.FinishedBuild.TeamName,
+		JobName:      dto.FinishedBuild.JobName,
+		PipelineName: dto.FinishedBuild.PipelineName,
+		Status:       dto.FinishedBuild.Status,
+	}
+}
+
+func (s *ApiImpl) FindJobStatuses() ([]JobStatus, error) {
+	client := http.Client{}
+	buildsEndpoint, _ := s.URI.Parse("/api/v1/jobs")
+	req, err := http.NewRequest(http.MethodGet, buildsEndpoint.String(), nil)
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-type", "application/json")
+	if err != nil {
+		return nil, errors.Wrap(err, "Impossible to get jobs list")
+	}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "Impossible to get jobs list")
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New("Impossible to get jobs list")
+	}
+
+	var jsonJobs []JobDTO
+
+	err = json.NewDecoder(resp.Body).Decode(&jsonJobs)
+	if err != nil {
+		return nil, errors.Wrap(err, "Impossible to get jobs list")
+	}
+	res := make([]JobStatus, 0)
+	for _, item := range jsonJobs {
+		if item.FinishedBuild != nil {
+			res = append(res, dtoToJobStatus(item))
+		}
 	}
 	return res, nil
 }
