@@ -82,6 +82,10 @@ aws/update:
 	@cd terraform/providers/aws; terraform validate
 	@cd terraform/providers/aws; terraform apply -auto-approve
 
+aws/destroy:
+	@cd terraform/providers/aws; terraform validate
+	@cd terraform/providers/aws; terraform destroy -auto-approve
+
 out/lambda: out aws/cmd/handler/lambda.go
 	@GOOS=linux go build -o out/lambda ./aws/cmd/handler/
 
