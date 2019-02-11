@@ -18,10 +18,6 @@ type AWSImpl struct {
 	Writer    writers.AWSCloudWatchMetricWriter
 }
 
-func (s *AWSImpl) PublishJobStatus(m JobStatusMetric) error {
-	panic("implement me")
-}
-
 func cloudwatchDimension(n string, v string) *cloudwatch.Dimension {
 	return &cloudwatch.Dimension{Name: &n, Value: &v}
 }
@@ -45,6 +41,32 @@ func (s *AWSImpl) PublishJobDuration(m JobDurationMetric) error {
 			cloudwatchDimension("team", m.TeamName),
 		)).
 		SetValue(float64(m.Duration()))
+	data := []*cloudwatch.MetricDatum{datum}
+	in := &cloudwatch.PutMetricDataInput{}
+	in.
+		SetNamespace(s.Namespace).
+		SetMetricData(data)
+	_, err := s.Writer.PutMetricData(in)
+	return err
+}
+
+func (s *AWSImpl) PublishJobStatus(m JobStatusMetric) error {
+	value := 100.0
+	if m.Status != "up" {
+		value = 0.0
+	}
+	datum := &cloudwatch.MetricDatum{}
+	datum.
+		SetTimestamp(time.Unix(int64(m.SamplingTime), 0)).
+		SetMetricName("Status").
+		SetUnit("Percent").
+		SetDimensions(cloudwatchDimensions(
+			cloudwatchDimension("pipeline", m.PipelineName),
+			cloudwatchDimension("job_name", m.JobName),
+			cloudwatchDimension("concourse", m.Concourse),
+			cloudwatchDimension("team", m.TeamName),
+		)).
+		SetValue(value)
 	data := []*cloudwatch.MetricDatum{datum}
 	in := &cloudwatch.PutMetricDataInput{}
 	in.
