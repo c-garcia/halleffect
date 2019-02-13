@@ -13,7 +13,7 @@ import (
 func Test_NewLambdaHandler_CallsService(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockService := mocks.NewMockService(ctrl)
-	mockService.EXPECT().ExportMetrics().Return(nil)
+	mockService.EXPECT().ExportJobDurationMetrics().Return(nil)
 	mockLogger := handlerMocks.NewMockLogger(ctrl)
 	mockLogger.EXPECT().Println("Metrics export done")
 
@@ -29,7 +29,7 @@ func Test_NewLambdaHandler_CallsService(t *testing.T) {
 func Test_NewLambdaHandler_PropagatesError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockService := mocks.NewMockService(ctrl)
-	mockService.EXPECT().ExportMetrics().Return(assert.AnError)
+	mockService.EXPECT().ExportJobDurationMetrics().Return(assert.AnError)
 	mockLogger := handlerMocks.NewMockLogger(ctrl)
 	mockLogger.EXPECT().Printf("%+v", gomock.Any())
 

@@ -10,7 +10,7 @@ import (
 )
 
 type Service interface {
-	ExportMetrics() error
+	ExportJobDurationMetrics() error
 }
 
 type ServiceImpl struct {
@@ -19,7 +19,7 @@ type ServiceImpl struct {
 	Clock     timing.Clock
 }
 
-func (s *ServiceImpl) ExportMetrics() error {
+func (s *ServiceImpl) ExportJobDurationMetrics() error {
 	var builds []concourse.Build
 	var err error
 	concourseName := s.Concourse.Name()

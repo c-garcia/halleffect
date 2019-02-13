@@ -71,7 +71,7 @@ func TestExportMetrics_ExportsJobDurations(t *testing.T) {
 		doubles.NewStoppedClock(SamplingTime),
 	)
 
-	err := sut.ExportMetrics()
+	err := sut.ExportJobDurationMetrics()
 
 	assert.NoError(t, err)
 	for _, metric := range expectedMetrics {
@@ -89,7 +89,7 @@ func TestExportMetrics_WhenConcourseFails(t *testing.T) {
 		doubles.NewStoppedClock(SamplingTime),
 	)
 
-	err := sut.ExportMetrics()
+	err := sut.ExportJobDurationMetrics()
 
 	assert.Error(t, err)
 	assert.Equal(t, 0, metricsPublisher.NumberOfPublishedJobDurationMetrics())
@@ -165,7 +165,7 @@ func TestExportMetrics_ExportsJobStatus(t *testing.T) {
 		doubles.NewStoppedClock(SamplingTime),
 	)
 
-	err := sut.ExportMetrics()
+	err := sut.ExportJobDurationMetrics()
 
 	fmt.Printf("In-Memory Publisher content: %s\n", metricsPublisher.String())
 	assert.NoError(t, err)

@@ -32,16 +32,16 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
-// ExportMetrics mocks base method
-func (m *MockService) ExportMetrics() error {
+// ExportJobDurationMetrics mocks base method
+func (m *MockService) ExportJobDurationMetrics() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExportMetrics")
+	ret := m.ctrl.Call(m, "ExportJobDurationMetrics")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// ExportMetrics indicates an expected call of ExportMetrics
-func (mr *MockServiceMockRecorder) ExportMetrics() *gomock.Call {
+// ExportJobDurationMetrics indicates an expected call of ExportJobDurationMetrics
+func (mr *MockServiceMockRecorder) ExportJobDurationMetrics() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportMetrics", reflect.TypeOf((*MockService)(nil).ExportMetrics))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportJobDurationMetrics", reflect.TypeOf((*MockService)(nil).ExportJobDurationMetrics))
 }

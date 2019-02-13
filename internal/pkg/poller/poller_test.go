@@ -43,7 +43,7 @@ func Test_ExportsMetrics_PublishesAllFinishedBuilds(t *testing.T) {
 	mockClock.EXPECT().UnixTime().Return(SamplingTime)
 
 	sut := New(mockConcourse, mockExporter, mockClock)
-	err := sut.ExportMetrics()
+	err := sut.ExportJobDurationMetrics()
 
 	assert.NoError(t, err)
 	ctrl.Finish()
@@ -70,7 +70,7 @@ func Test_ExportsMetrics_PublishesOnlyFinishedBuilds(t *testing.T) {
 	mockClock.EXPECT().UnixTime().Return(SamplingTime)
 
 	sut := New(mockConcourse, mockExporter, mockClock)
-	err := sut.ExportMetrics()
+	err := sut.ExportJobDurationMetrics()
 
 	assert.NoError(t, err)
 	ctrl.Finish()
@@ -95,7 +95,7 @@ func Test_ExportsMetrics_DoesNotExportStatusesIfEndpointDoesNotSupportIt(t *test
 	mockClock.EXPECT().UnixTime().Return(SamplingTime)
 
 	sut := New(mockConcourse, mockExporter, mockClock)
-	err := sut.ExportMetrics()
+	err := sut.ExportJobDurationMetrics()
 
 	assert.NoError(t, err)
 	ctrl.Finish()
@@ -120,7 +120,7 @@ func Test_ExportsMetrics_DoesNotExportStatusesIfEndpointTestingFails(t *testing.
 	mockClock.EXPECT().UnixTime().Return(SamplingTime)
 
 	sut := New(mockConcourse, mockExporter, mockClock)
-	err := sut.ExportMetrics()
+	err := sut.ExportJobDurationMetrics()
 
 	assert.Error(t, err)
 	ctrl.Finish()
@@ -139,7 +139,7 @@ func Test_ExportsMetrics_PropagatesConcourseErrors(t *testing.T) {
 	mockClock.EXPECT().UnixTime().Return(SamplingTime)
 
 	sut := New(mockConcourse, mockExporter, mockClock)
-	err := sut.ExportMetrics()
+	err := sut.ExportJobDurationMetrics()
 
 	assert.Error(t, err)
 	assert.Equal(t, assert.AnError, errors.Cause(err))
@@ -165,7 +165,7 @@ func Test_ExportsMetrics_AbortsAtFirstPublishingError(t *testing.T) {
 	mockClock.EXPECT().UnixTime().Return(SamplingTime)
 
 	sut := New(mockConcourse, mockExporter, mockClock)
-	err := sut.ExportMetrics()
+	err := sut.ExportJobDurationMetrics()
 
 	assert.Error(t, err)
 	assert.Equal(t, assert.AnError, errors.Cause(err))
