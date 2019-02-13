@@ -50,17 +50,16 @@ retool:
 gen:
 	@retool do go generate ./...
 
-test: test/unit
-
-
-test/unit: retool
-	@retool do go test ./...
-
-test/integration: retool
-	@retool do go test -tags integration ./...
-
 install: retool
 	@dep ensure
+
+test/unit: retool gen
+	@retool do go test ./...
+
+test/integration: retool gen
+	@retool do go test -tags integration ./...
+
+test: test/unit
 
 tunnel:
 	@ngrok http --bind-tls false 8080
