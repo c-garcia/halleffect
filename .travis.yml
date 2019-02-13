@@ -2,4 +2,5 @@ language: go
 branches:
   - master
 script:
+  - make go-dep
   - make test

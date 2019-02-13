@@ -40,6 +40,9 @@ concourse/p3: $(FLYBIN)
 	@$(FLY) set-pipeline --config ci-test/pipeline3.yaml --pipeline p3 -n
 	@$(FLY) expose-pipeline --pipeline p3
 
+go-dep:
+	@go get -u github.com/golang/dep/cmd/dep
+
 clean:
 	@rm -rf .bin
 	@rm -rf out
