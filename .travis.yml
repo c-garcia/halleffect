@@ -1,3 +1,3 @@
-language: golang
+language: go
 script:
   - make test
