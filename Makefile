@@ -53,10 +53,10 @@ gen:
 install: retool
 	@dep ensure
 
-test/unit: retool gen
+test/unit: install gen
 	@retool do go test ./...
 
-test/integration: retool gen
+test/integration: install gen
 	@retool do go test -tags integration ./...
 
 test: test/unit
