@@ -36,6 +36,14 @@ func (s *ServiceImpl) ExportMetrics() error {
 		}
 	}
 
+	supportsJobs, err := s.Concourse.SupportsJobsEndpoint()
+	if err != nil {
+		return errors.Wrap(err, "Error determining if Jobs API is supported")
+	}
+	if !supportsJobs {
+		return nil
+	}
+
 	var jobs []concourse.JobStatus
 	if jobs, err = s.Concourse.FindJobStatuses(); err != nil {
 		return errors.Wrap(err, "Error retrieving jobs")

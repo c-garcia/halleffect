@@ -33,6 +33,7 @@ func Test_ExportsMetrics_PublishesAllFinishedBuilds(t *testing.T) {
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
 	mockConcourse.EXPECT().Name().Return(ConcourseHost)
 	mockConcourse.EXPECT().FindLastBuilds().Return(builds, nil)
+	mockConcourse.EXPECT().SupportsJobsEndpoint().Return(true, nil)
 	noStatuses := make([]concourse.JobStatus, 0)
 	mockConcourse.EXPECT().FindJobStatuses().Return(noStatuses, nil)
 	mockExporter := metricsMocks.NewMockMetricsPublisher(ctrl)
@@ -60,6 +61,7 @@ func Test_ExportsMetrics_PublishesOnlyFinishedBuilds(t *testing.T) {
 	mockConcourse := concourseMocks.NewMockAPI(ctrl)
 	mockConcourse.EXPECT().FindLastBuilds().Return(builds, nil)
 	mockConcourse.EXPECT().Name().Return(ConcourseHost)
+	mockConcourse.EXPECT().SupportsJobsEndpoint().Return(true, nil)
 	noStatuses := make([]concourse.JobStatus, 0)
 	mockConcourse.EXPECT().FindJobStatuses().Return(noStatuses, nil)
 	mockExporter := metricsMocks.NewMockMetricsPublisher(ctrl)
@@ -71,6 +73,56 @@ func Test_ExportsMetrics_PublishesOnlyFinishedBuilds(t *testing.T) {
 	err := sut.ExportMetrics()
 
 	assert.NoError(t, err)
+	ctrl.Finish()
+}
+
+func Test_ExportsMetrics_DoesNotExportStatusesIfEndpointDoesNotSupportIt(t *testing.T) {
+	b1 := concourse.Build{StartTime: 100, EndTime: 0, PipelineName: "p1", JobName: "j1", Status: "started", TeamName: "main"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed", TeamName: "not-main"}
+	builds := []concourse.Build{b1, b2}
+	m2 := publisher.JobDurationMetric{
+		Concourse: ConcourseHost, Timestamp: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed",
+		TeamName: "not-main",
+	}
+	ctrl := gomock.NewController(t)
+	mockConcourse := concourseMocks.NewMockAPI(ctrl)
+	mockConcourse.EXPECT().Name().Return(ConcourseHost)
+	mockConcourse.EXPECT().FindLastBuilds().Return(builds, nil)
+	mockExporter := metricsMocks.NewMockMetricsPublisher(ctrl)
+	mockExporter.EXPECT().PublishJobDuration(m2).Return(nil)
+	mockConcourse.EXPECT().SupportsJobsEndpoint().Return(false, nil)
+	mockClock := timingMocks.NewMockClock(ctrl)
+	mockClock.EXPECT().UnixTime().Return(SamplingTime)
+
+	sut := New(mockConcourse, mockExporter, mockClock)
+	err := sut.ExportMetrics()
+
+	assert.NoError(t, err)
+	ctrl.Finish()
+}
+
+func Test_ExportsMetrics_DoesNotExportStatusesIfEndpointTestingFails(t *testing.T) {
+	b1 := concourse.Build{StartTime: 100, EndTime: 0, PipelineName: "p1", JobName: "j1", Status: "started", TeamName: "main"}
+	b2 := concourse.Build{StartTime: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed", TeamName: "not-main"}
+	builds := []concourse.Build{b1, b2}
+	m2 := publisher.JobDurationMetric{
+		Concourse: ConcourseHost, Timestamp: 121, EndTime: 200, PipelineName: "p1", JobName: "j2", Status: "failed",
+		TeamName: "not-main",
+	}
+	ctrl := gomock.NewController(t)
+	mockConcourse := concourseMocks.NewMockAPI(ctrl)
+	mockConcourse.EXPECT().Name().Return(ConcourseHost)
+	mockConcourse.EXPECT().FindLastBuilds().Return(builds, nil)
+	mockExporter := metricsMocks.NewMockMetricsPublisher(ctrl)
+	mockExporter.EXPECT().PublishJobDuration(m2).Return(nil)
+	mockConcourse.EXPECT().SupportsJobsEndpoint().Return(false, assert.AnError)
+	mockClock := timingMocks.NewMockClock(ctrl)
+	mockClock.EXPECT().UnixTime().Return(SamplingTime)
+
+	sut := New(mockConcourse, mockExporter, mockClock)
+	err := sut.ExportMetrics()
+
+	assert.Error(t, err)
 	ctrl.Finish()
 }
 

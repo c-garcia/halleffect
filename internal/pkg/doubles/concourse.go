@@ -130,3 +130,58 @@ func GivenACouncourseServerWithBuilds(port int, builds []concourse.BuildDTO) {
 		panic(err)
 	}
 }
+
+func GivenAConcourseServerNotSupportingJobs(port int) {
+	imposter := gobank.NewImposterBuilder().
+		Protocol("http").
+		Port(port).
+		Stubs(
+			gobank.Stub().
+				Predicates(
+					predicates.Equals().Path("/api/v1/jobs").Build(),
+				).
+				Responses(
+					responses.Is().StatusCode(http.StatusNotFound).Body("Not found").Build(),
+				).Build(),
+			gobank.Stub().
+				Predicates().
+				Responses(
+					responses.Is().StatusCode(http.StatusNotFound).Body("Not found").Build(),
+				).Build(),
+		).
+		Build()
+	client := gobank.NewClient(MounteBankURL())
+	if _, err := client.CreateImposter(imposter); err != nil {
+		panic(err)
+	}
+}
+
+func GivenAConcourseServerSupportingJobs(port int) {
+	imposter := gobank.NewImposterBuilder().
+		Protocol("http").
+		Port(port).
+		Stubs(
+			gobank.Stub().
+				Predicates(
+					predicates.Equals().Path("/api/v1/jobs").Build(),
+				).
+				Responses(
+					responses.Is().Body("[]").Build(),
+				).Build(),
+			gobank.Stub().
+				Predicates().
+				Responses(
+					responses.Is().StatusCode(http.StatusNotFound).Body("Not found").Build(),
+				).Build(),
+		).
+		Build()
+	client := gobank.NewClient(MounteBankURL())
+	if _, err := client.CreateImposter(imposter); err != nil {
+		panic(err)
+	}
+
+}
+
+func GivenNoConcourseServer(){
+	return
+}

@@ -76,3 +76,18 @@ func (mr *MockAPIMockRecorder) FindJobStatuses() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindJobStatuses", reflect.TypeOf((*MockAPI)(nil).FindJobStatuses))
 }
+
+// SupportsJobsEndpoint mocks base method
+func (m *MockAPI) SupportsJobsEndpoint() (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SupportsJobsEndpoint")
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SupportsJobsEndpoint indicates an expected call of SupportsJobsEndpoint
+func (mr *MockAPIMockRecorder) SupportsJobsEndpoint() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SupportsJobsEndpoint", reflect.TypeOf((*MockAPI)(nil).SupportsJobsEndpoint))
+}

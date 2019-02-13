@@ -13,11 +13,25 @@ type API interface {
 	Name() string
 	FindLastBuilds() ([]Build, error)
 	FindJobStatuses() ([]JobStatus, error)
+	SupportsJobsEndpoint() (bool, error)
 }
 
 type ApiImpl struct {
 	Concourse string
 	URI       *url.URL
+}
+
+func (s *ApiImpl) SupportsJobsEndpoint() (bool, error) {
+	client := http.Client{}
+	buildsEndpoint, _ := s.URI.Parse("/api/v1/jobs")
+	req, _ := http.NewRequest(http.MethodGet, buildsEndpoint.String(), nil)
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return false, errors.Wrap(err, "Cannot determine if concourse supports Jobs API")
+	}
+	return resp.StatusCode == http.StatusOK, nil
 }
 
 type BuildDTO struct {

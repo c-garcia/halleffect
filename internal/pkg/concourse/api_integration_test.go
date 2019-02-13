@@ -219,3 +219,29 @@ func TestApi_FindJobStatuses(t *testing.T) {
 	assert.Contains(t, metrics, failedJob, "The failed job belongs to the returned ones")
 	assert.Len(t, metrics, numberOfJobsWithFinishedBuilds(jobsJSON), "There should be only jobs with finished builds")
 }
+
+func TestApiImpl_SupportsJobsEndpoint_FalseIfNoEndpoint(t *testing.T) {
+	doubles.GivenAConcourseServerNotSupportingJobs(PORT)
+	defer doubles.ShutdownConcourseServer(PORT)
+	sut := concourse.New("test", doubles.ImposterURL(PORT))
+	supportsJobs, err := sut.SupportsJobsEndpoint()
+	assert.NoError(t, err)
+	assert.False(t, supportsJobs)
+}
+
+func TestApiImpl_SupportsJobsEndpoint_TrueIfEndpoint(t *testing.T) {
+	doubles.GivenAConcourseServerSupportingJobs(PORT)
+	defer doubles.ShutdownConcourseServer(PORT)
+	sut := concourse.New("test", doubles.ImposterURL(PORT))
+	supportsJobs, err := sut.SupportsJobsEndpoint()
+	assert.NoError(t, err)
+	assert.True(t, supportsJobs)
+}
+
+func TestApiImpl_SupportsJobsEndpoint_PropagatesError(t *testing.T) {
+	doubles.GivenNoConcourseServer()
+	sut := concourse.New("test", doubles.ImposterURL(PORT))
+	_, err := sut.SupportsJobsEndpoint()
+	assert.Error(t, err)
+}
+
