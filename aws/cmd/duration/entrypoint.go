@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
-	"github.com/c-garcia/halleffect/aws"
 	"github.com/c-garcia/halleffect/internal/pkg/concourse"
-	"github.com/c-garcia/halleffect/internal/pkg/poller"
-	"github.com/c-garcia/halleffect/internal/pkg/publisher"
+	"github.com/c-garcia/halleffect/internal/pkg/microlog"
+	"github.com/c-garcia/halleffect/internal/pkg/services"
+	"github.com/c-garcia/halleffect/internal/pkg/store"
 	"github.com/c-garcia/halleffect/internal/pkg/timing"
 	"github.com/c-garcia/halleffect/internal/pkg/writers"
 	"github.com/pkg/errors"
@@ -16,7 +16,7 @@ import (
 import "github.com/aws/aws-lambda-go/lambda"
 
 var (
-	handler aws.MetricsHandler
+	handler DurationMetricsEventHandler
 )
 
 type SystemParams struct {
@@ -25,12 +25,12 @@ type SystemParams struct {
 }
 
 type SystemConfiguration struct {
-	ConcourseAPI     concourse.API
-	CloudwatchAPI    writers.AWSCloudWatchMetricWriter
-	MetricsPublisher publisher.MetricsPublisher
-	Clock            timing.Clock
-	Poller           poller.Service
-	Logger           aws.Logger
+	ConcourseAPI   concourse.API
+	CloudwatchAPI  writers.AWSCloudWatchMetricWriter
+	Store          store.JobLastSuccessfulDuration
+	Clock          timing.Clock
+	MetricsService services.Metrics
+	Logger         microlog.Logger
 }
 
 const Namespace = "Concourse/Jobs"
@@ -40,18 +40,18 @@ func configureSystem(pars SystemParams) SystemConfiguration {
 	concourseURL := pars.ConcourseURL
 	concourseAPI := concourse.New(concourseName, concourseURL)
 	cloudwatchAPI := cloudwatch.New(session.Must(session.NewSession()))
-	metricsPublisher := publisher.NewAWS(Namespace, cloudwatchAPI)
+	metricsStore := store.NewJobLastSuccessfulDurationAWS(Namespace, cloudwatchAPI)
 	clock := timing.NewSystemClock()
-	thePoller := poller.New(concourseAPI, metricsPublisher, clock)
+	thePoller := services.NewLastSuccessfulBuildDurationImpl(concourseName, concourseAPI, metricsStore, clock)
 	logger := log.New(os.Stderr, "hall-effect", log.LstdFlags)
 
 	return SystemConfiguration{
-		ConcourseAPI:     concourseAPI,
-		CloudwatchAPI:    cloudwatchAPI,
-		MetricsPublisher: metricsPublisher,
-		Clock:            clock,
-		Poller:           thePoller,
-		Logger:           logger,
+		ConcourseAPI:   concourseAPI,
+		CloudwatchAPI:  cloudwatchAPI,
+		Store:          metricsStore,
+		Clock:          clock,
+		MetricsService: thePoller,
+		Logger:         logger,
 	}
 }
 
@@ -66,6 +66,6 @@ func main() {
 		ConcourseURL:  concourseURL,
 	}
 	cfg := configureSystem(params)
-	handler = aws.NewLambdaHandler(cfg.Poller, cfg.Logger)
+	handler = NewLambdaHandler(cfg.MetricsService, cfg.Logger)
 	lambda.Start(handler)
 }

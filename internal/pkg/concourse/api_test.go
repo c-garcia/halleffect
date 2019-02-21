@@ -1,3 +1,5 @@
+//+build !integration, !service
+
 package concourse
 
 import (

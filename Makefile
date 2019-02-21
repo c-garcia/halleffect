@@ -39,6 +39,7 @@ concourse/p3: $(FLYBIN)
 	@$(FLY) validate-pipeline -c ci-test/pipeline3.yaml
 	@$(FLY) set-pipeline --config ci-test/pipeline3.yaml --pipeline p3 -n
 	@$(FLY) expose-pipeline --pipeline p3
+	@$(FLY) unpause-pipeline --pipeline p3
 
 go-dep:
 	@go get -u github.com/golang/dep/cmd/dep
@@ -60,7 +61,10 @@ test/unit: install gen
 	@retool do go test ./...
 
 test/integration: install gen
-	@retool do go test -tags integration ./...
+	@retool do go test -tags=integration ./...
+
+test/service: install gen
+	@retool do go test -tags=service ./...
 
 test: test/unit
 
@@ -88,8 +92,8 @@ aws/destroy:
 	@cd terraform/providers/aws; terraform validate
 	@cd terraform/providers/aws; terraform destroy -auto-approve
 
-out/lambda: out aws/cmd/handler/lambda.go
-	@GOOS=linux go build -o out/lambda ./aws/cmd/handler/
+out/lambda: out $(wildcard aws/cmd/duration/*.go)
+	@GOOS=linux go build -o out/lambda ./aws/cmd/duration/
 
 out/lambda.zip: out/lambda
 	cd out/; zip lambda.zip lambda

@@ -1,10 +1,12 @@
+// +build !integration, !service
+
 package main
 
 import (
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/c-garcia/halleffect/internal/pkg/concourse"
-	"github.com/c-garcia/halleffect/internal/pkg/poller"
-	"github.com/c-garcia/halleffect/internal/pkg/publisher"
+	"github.com/c-garcia/halleffect/internal/pkg/services"
+	"github.com/c-garcia/halleffect/internal/pkg/store"
 	"github.com/c-garcia/halleffect/internal/pkg/timing"
 	"github.com/stretchr/testify/assert"
 	"log"
@@ -22,11 +24,11 @@ func TestConfig(t *testing.T) {
 	assert.True(t, ok)
 	_, ok = cfg.CloudwatchAPI.(*cloudwatch.CloudWatch)
 	assert.True(t, ok)
-	_, ok = cfg.MetricsPublisher.(*publisher.AWSImpl)
+	_, ok = cfg.Store.(*store.JobLastSuccessfulDurationAWS)
 	assert.True(t, ok)
 	_, ok = cfg.Clock.(*timing.SystemClock)
 	assert.True(t, ok)
-	_, ok = cfg.Poller.(*poller.ServiceImpl)
+	_, ok = cfg.MetricsService.(*services.LastSuccessfulBuildDurationImpl)
 	assert.True(t, ok)
 	_, ok = cfg.Logger.(*log.Logger)
 	assert.True(t, ok)

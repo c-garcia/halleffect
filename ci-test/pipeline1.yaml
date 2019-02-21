@@ -19,11 +19,17 @@ jobs:
           type: docker-image
           source:
             repository: alpine
-            tag: latest
+            tag: 3.8
         run:
           path: sh
           args:
             - -ec
             - |
               sleep 20
+              probe=$RANDOM
+              echo "RANDOM: $probe"
+              if [ "$probe" -gt "15000" ]; then
+                 echo "FAILURE"
+                 exit 1
+              fi
               ls -l

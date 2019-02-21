@@ -1,4 +1,4 @@
-package aws
+package microlog
 
 //go:generate mockgen -source=log.go -destination=mocks/log.go -package=mocks
 
