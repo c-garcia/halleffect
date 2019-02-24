@@ -1,4 +1,5 @@
-// +build service, !integration
+// +build service
+// +build !integration
 
 package service_test
 
