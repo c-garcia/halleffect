@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 //go:generate mockgen -source=api.go -destination=mocks/api.go -package=mocks
@@ -49,8 +50,8 @@ type BuildDTO struct {
 func dtoToBuild(b BuildDTO) Build {
 	return Build{
 		Id:           b.Id,
-		StartTime:    b.StartTime,
-		EndTime:      b.EndTime,
+		StartTime:    time.Unix(int64(b.StartTime), 0),
+		EndTime:      time.Unix(int64(b.EndTime), 0),
 		PipelineName: b.PipelineName,
 		JobName:      b.JobName,
 		Status:       b.Status,

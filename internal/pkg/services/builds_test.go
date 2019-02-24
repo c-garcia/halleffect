@@ -25,8 +25,8 @@ func TestLastSuccessfulBuildDurationImpl_SaveMetrics(t *testing.T) {
 
 	failedBuild := concourse.Build{
 		Id:           101,
-		StartTime:    int(StartTime.Add(2 * time.Minute).Unix()),
-		EndTime:      int(StartTime.Add(3 * time.Minute).Unix()),
+		StartTime:    StartTime.Add(2 * time.Minute),
+		EndTime:      StartTime.Add(3 * time.Minute),
 		PipelineName: Pipeline,
 		JobName:      Job,
 		Status:       concourse.StatusFailed,
@@ -34,8 +34,8 @@ func TestLastSuccessfulBuildDurationImpl_SaveMetrics(t *testing.T) {
 	}
 	successfulBuild := concourse.Build{
 		Id:           100,
-		StartTime:    int(StartTime.Unix()),
-		EndTime:      int(StartTime.Add(1 * time.Minute).Unix()),
+		StartTime:    StartTime,
+		EndTime:      StartTime.Add(1 * time.Minute),
 		PipelineName: Pipeline,
 		JobName:      Job,
 		Status:       concourse.StatusSucceeded,
@@ -97,8 +97,8 @@ func TestLastSuccessfulBuildDurationImpl_SaveMetrics_AbortsOnFirstStoreError(t *
 
 	successful1 := concourse.Build{
 		Id:           101,
-		StartTime:    int(StartTime.Add(2 * time.Minute).Unix()),
-		EndTime:      int(StartTime.Add(3 * time.Minute).Unix()),
+		StartTime:    StartTime.Add(2 * time.Minute),
+		EndTime:      StartTime.Add(3 * time.Minute),
 		PipelineName: Pipeline,
 		JobName:      Job1,
 		Status:       concourse.StatusSucceeded,
@@ -106,8 +106,8 @@ func TestLastSuccessfulBuildDurationImpl_SaveMetrics_AbortsOnFirstStoreError(t *
 	}
 	successful2 := concourse.Build{
 		Id:           100,
-		StartTime:    int(StartTime.Unix()),
-		EndTime:      int(StartTime.Add(1 * time.Minute).Unix()),
+		StartTime:    StartTime,
+		EndTime:      StartTime.Add(1 * time.Minute),
 		PipelineName: Pipeline,
 		JobName:      Job2,
 		Status:       concourse.StatusSucceeded,

@@ -1,4 +1,5 @@
-//+build !integration, !service
+// +build !integration
+// +build !service
 
 package concourse
 
@@ -9,17 +10,20 @@ import (
 )
 
 func TestBuild_Finished(t *testing.T) {
+	instant1 := time.Now().Add(-24 * time.Hour)
+	instant2 := instant1.Add(10 * time.Minute)
+	var instant0 time.Time
 	type fields struct {
-		StartTime int
-		EndTime   int
+		StartTime time.Time
+		EndTime   time.Time
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		want   bool
 	}{
-		{"both fields are greater than zero", fields{1000, 1000}, false},
-		{"finished field is zero", fields{1000, 0}, true},
+		{"both fields are greater than zero", fields{instant1, instant2}, true},
+		{"finished field is zero", fields{instant1, instant0}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -37,42 +41,45 @@ func TestBuild_Finished(t *testing.T) {
 func TestBuild_Duration(t *testing.T) {
 	time1 := time.Now()
 	time1plus1sec := time1.Add(1 * time.Second)
-	time1plus1ms := time1.Add(1 * time.Millisecond)
 	type fields struct {
-		StartTime int
-		EndTime   int
+		StartTime time.Time
+		EndTime   time.Time
 	}
 	tests := []struct {
 		Name   string
 		Fields fields
 		Want   time.Duration
 	}{
-		{"0 duration", fields{int(time1.Unix()), int(time1plus1sec.Unix())}, 1 * time.Second},
-		{">0 duration", fields{int(time1.Unix()), int(time1.Unix())}, 0 * time.Second},
-		{"second resolution", fields{int(time1.Unix()), int(time1plus1ms.Unix())}, 0 * time.Second},
+		{"0 duration", fields{time1, time1plus1sec}, 1 * time.Second},
+		{">0 duration", fields{time1, time1}, 0 * time.Second},
 	}
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
-			assert.Equal(t, test.Want, Build{StartTime: test.Fields.StartTime, EndTime: test.Fields.EndTime}.Duration())
+			startTime := test.Fields.StartTime
+			endTime := test.Fields.EndTime
+			assert.Equal(t, test.Want, Build{StartTime: startTime, EndTime: endTime}.Duration())
 		})
 	}
 }
 
 func TestBuild_Succeeded(t *testing.T) {
+	var instant0 time.Time
+	instant1 := time.Now().Add(-24 * time.Hour)
+	instant2 := instant1.Add(10 * time.Minute)
 	type fields struct {
 		Status    string
-		StartTime int
-		EndTime   int
+		StartTime time.Time
+		EndTime   time.Time
 	}
 	tests := []struct {
 		Name   string
 		Fields fields
 		Want   bool
 	}{
-		{"succeeded", fields{"succeeded", 1000, 1100}, true},
-		{"failed", fields{"failed", 1000, 1100}, false},
-		{"errored", fields{"errored", 1000, 1100}, false},
-		{"started", fields{"started", 1000, 0}, false},
+		{"succeeded", fields{"succeeded", instant1, instant2}, true},
+		{"failed", fields{"failed", instant1, instant2}, false},
+		{"errored", fields{"errored", instant1, instant2}, false},
+		{"started", fields{"started", instant1, instant0}, false},
 	}
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {

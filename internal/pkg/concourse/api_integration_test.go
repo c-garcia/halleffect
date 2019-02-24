@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+	"time"
 )
 
 const (
@@ -44,6 +45,10 @@ func givenACouncourseServer(port int, jsonText string) {
 
 func shutdownServer() {
 	mbClient.DeleteImposter(PORT)
+}
+
+func fromUnix(t int64) time.Time {
+	return time.Unix(t, 0)
 }
 
 func TestAPI_FindLastBuilds_RetrievesLastBuilds(t *testing.T) {
@@ -90,13 +95,13 @@ func TestAPI_FindLastBuilds_RetrievesLastBuilds(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, builds, 3)
 	assert.Equal(t, builds[0], concourse.Build{
-		Id: 160, StartTime: 1548573140, EndTime: 0, PipelineName: "p2", JobName: "build-node", Status: "started", TeamName: "main",
+		Id: 160, StartTime: fromUnix(1548573140), EndTime: fromUnix(0), PipelineName: "p2", JobName: "build-node", Status: "started", TeamName: "main",
 	})
 	assert.Equal(t, builds[1], concourse.Build{
-		Id: 159, StartTime: 1548573115, EndTime: 1548573122, PipelineName: "p1", JobName: "show-time", Status: "succeeded", TeamName: "main",
+		Id: 159, StartTime: fromUnix(1548573115), EndTime: fromUnix(1548573122), PipelineName: "p1", JobName: "show-time", Status: "succeeded", TeamName: "main",
 	})
 	assert.Equal(t, builds[2], concourse.Build{
-		Id: 158, StartTime: 1548573055, EndTime: 1548573063, PipelineName: "p1", JobName: "show-time", Status: "failed", TeamName: "main",
+		Id: 158, StartTime: fromUnix(1548573055), EndTime: fromUnix(1548573063), PipelineName: "p1", JobName: "show-time", Status: "failed", TeamName: "main",
 	})
 }
 
@@ -244,4 +249,3 @@ func TestApiImpl_SupportsJobsEndpoint_PropagatesError(t *testing.T) {
 	_, err := sut.SupportsJobsEndpoint()
 	assert.Error(t, err)
 }
-

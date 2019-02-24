@@ -4,8 +4,8 @@ import "time"
 
 type Build struct {
 	Id           int
-	StartTime    int
-	EndTime      int
+	StartTime    time.Time
+	EndTime      time.Time
 	PipelineName string
 	JobName      string
 	Status       string
@@ -20,11 +20,11 @@ const (
 )
 
 func (b Build) Finished() bool {
-	return b.EndTime == 0
+	return !b.EndTime.IsZero()
 }
 
 func (b Build) Duration() time.Duration {
-	return time.Unix(int64(b.EndTime), 0).Sub(time.Unix(int64(b.StartTime), 0))
+	return b.EndTime.Sub(b.StartTime)
 }
 
 func (b Build) Succeeded() bool {

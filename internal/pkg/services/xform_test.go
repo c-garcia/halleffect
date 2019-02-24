@@ -20,8 +20,8 @@ func TestBuildToDurationMetric(t *testing.T) {
 	var endTime = startTime.Add(1 * time.Minute)
 	build := concourse.Build{
 		Id:           0,
-		StartTime:    int(startTime.Unix()),
-		EndTime:      int(endTime.Unix()),
+		StartTime:    startTime,
+		EndTime:      endTime,
 		PipelineName: Pipeline,
 		JobName:      Job,
 		Status:       concourse.StatusSucceeded,

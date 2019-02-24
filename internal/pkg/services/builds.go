@@ -28,7 +28,7 @@ func (s *LastSuccessfulBuildDurationImpl) SaveMetrics() error {
 		return errors.Wrap(err, "Error retrieving builds")
 	}
 	shouldKeepBuild := func(alreadyExisting bool, newBuild, latestSofar concourse.Build) bool {
-		return !alreadyExisting || (alreadyExisting && (newBuild.EndTime > latestSofar.EndTime))
+		return !alreadyExisting || (alreadyExisting && (newBuild.EndTime.After(latestSofar.EndTime)))
 	}
 	for _, build := range builds {
 		if build.Succeeded() {

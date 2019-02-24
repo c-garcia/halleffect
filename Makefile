@@ -1,7 +1,7 @@
-.PHONY: concourse/login concourse/p1 concourse/p2 concourse/trigger-p2 clean
+.PHONY: concourse/login concourse/p1 concourse/p2 concourse/p3 concourse/trigger-p2 clean
 .PHONY: test test/integration test/unit retool
 
-.DEFAULT_GOAL := install
+.DEFAULT_GOAL := test
 
 FLYBIN=.bin/fly
 FLY=$(FLYBIN) -t local
