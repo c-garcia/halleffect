@@ -19,6 +19,10 @@ func (s *JobLastSuccessfulDurationInMemory) JobLastSuccessfulDurationHasBeenPubl
 	return s.metrics[m]
 }
 
+func (s *JobLastSuccessfulDurationInMemory) Size() int {
+	return len(s.metrics)
+}
+
 func (s *JobLastSuccessfulDurationInMemory) String() string {
 	buff := strings.Builder{}
 	buff.WriteString("*** In memory Store ***\n")

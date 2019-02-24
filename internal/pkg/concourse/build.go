@@ -17,6 +17,7 @@ const (
 	StatusStarted   = "started"
 	StatusFailed    = "failed"
 	StatusErrored   = "errored"
+	StatusAborted   = "aborted"
 )
 
 func (b Build) Finished() bool {

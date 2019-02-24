@@ -33,3 +33,19 @@ func TestJobLastSuccessfulDurationInMemory_JobLastSuccessfulDurationHasBeenPubli
 	assert.True(t, sut.JobLastSuccessfulDurationHasBeenPublished(publishedMetric))
 	assert.False(t, sut.JobLastSuccessfulDurationHasBeenPublished(unpublishedMetric))
 }
+
+func TestJobLastSuccessfulDurationInMemory_Size(t *testing.T) {
+	now := time.Now()
+	publishedMetric := metrics.JobLastSuccessfulDuration{
+		Timestamp: now,
+		Concourse: "concourse",
+		Team:      "team",
+		Pipeline:  "pipeline",
+		Job:       "job",
+		Duration:  120 * time.Second,
+	}
+	sut := NewJobLastSuccessfulDurationInMemory()
+	err := sut.Store(publishedMetric)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, sut.Size())
+}
